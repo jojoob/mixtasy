@@ -71,32 +71,11 @@ def get_path(key=False):
         path.append(key)
     mixes = GPG.list_keys(keys='mixtasy@')
     while len(path) < PATHLENGTH:
-        # randomkey = random.choice(mixes) # is not secure, see docs
-        randomkey = mixes[get_randomnumber(len(mixes))]
+        randomkey = random.SystemRandom().choice(mixes)
 
         if len(path) == 0 or path[len(path)-1] != randomkey:
             path.append(randomkey)
     return path
-
-def byte_length(n):
-    """determines the bytelength of an integer"""
-
-    bytecount = 0
-    while n:
-        n = n >> 8
-        bytecount += 1
-    return bytecount
-
-def get_randomnumber(maxlimit):
-    """Return a random integer in range 0...maxlimit-1"""
-
-    bytecount = byte_length(maxlimit)
-    random = os.urandom(bytecount)
-    randomnumber = 0
-    for x in random:
-        randomnumber = randomnumber << 8
-        randomnumber += ord(x)
-    return randomnumber % maxlimit
 
 def get_randomstring(length, chars=string.ascii_uppercase + string.digits):
     """Returns a string of random chars"""
