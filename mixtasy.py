@@ -210,14 +210,14 @@ class Header(object):
         self.fields = {}
 
     def __str__(self):
-        string = str()
+        headerstring = str()
         pfields = self.fields.copy()
         if 'Verification' in pfields:
             verificationhash = pfields.pop('Verification')
-            string += 'Verification' + ': ' + verificationhash + '\r\n'
+            headerstring += 'Verification' + ': ' + verificationhash + '\r\n'
         for field in sorted(pfields.iterkeys()):
-            string += field + ': ' + self.fields[field] + '\r\n'
-        return string
+            headerstring += field + ': ' + self.fields[field] + '\r\n'
+        return headerstring
 
     def set_field(self, field, value):
         """Set the field to value"""
@@ -234,16 +234,16 @@ class Header(object):
         return self.fields.pop(field)
 
     @staticmethod
-    def parse_header_line(line):
+    def parse_header_line(headerline):
         """Parses a header line
         returns a tupel with key and value
         """
-        colonposition = line.find(':')
+        colonposition = headerline.find(':')
         if colonposition > 0:
-            key = line[:colonposition]
+            key = headerline[:colonposition]
             key = key.strip()
             if len(key) > 0:
-                value = line[colonposition+1:]
+                value = headerline[colonposition+1:]
                 value = value.strip()
                 return [key, value]
         return False
@@ -265,11 +265,11 @@ class Message(object):
         self.body = body
 
     def __str__(self):
-        string = str()
-        string += self.header.__str__()
-        string += '\r\n'
-        string += self.body.__str__()
-        return string
+        messagestring = str()
+        messagestring += self.header.__str__()
+        messagestring += '\r\n'
+        messagestring += self.body.__str__()
+        return messagestring
 
     def __len__(self):
         return len(self.__str__())
@@ -287,12 +287,12 @@ class Message(object):
         self.body.encrypt(self.get_recipient())
 
     @classmethod
-    def parse(cls, string):
+    def parse(cls, messagestring):
         """Parse a string as a message with header and body."""
 
         message = cls('')
         headerready = False
-        for line in string.split('\n'):
+        for line in messagestring.split('\n'):
             if headerready:
                 message.body += line + '\n'
             else:
@@ -346,7 +346,7 @@ class MixMessage(Message):
             asclength = len(self.body)
             sizeincrease = 100 / float(binlength) * float(asclength) - 100
             LOGGER.debug("Message armored, size increased by %.1f%% (from %i to %i bytes absolute)",
-                        round(sizeincrease, 1), binlength, asclength)
+                         round(sizeincrease, 1), binlength, asclength)
         else:
             LOGGER.warning("Can't armor an unpacked message")
 
@@ -440,9 +440,11 @@ class FinalMixMessage(MixMessage):
         self.header.set_field('Mixtasy-ID', mixtasyid)
 
     def get_id(self):
+        """Returns the Mixtasy-ID of this message"""
         return self.header.get_field('Mixtasy-ID')
 
     def unpack(self):
+        """Unpacks the message body: extract the literal data packed and parses the content"""
         if self.packed:
             """Note: python-gnupg raises "Error sending data" here
             due to a broken pipe. Don't know why, decryption result is fine.
