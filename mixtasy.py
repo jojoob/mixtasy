@@ -418,9 +418,18 @@ class FinalMixMessage(MixMessage):
     def pad(self):
         """Add the inner padding to the message
         """
+
+        # Use an openPGP packet (type: new) with tag 63 and length 0 to separate the random padding.
+        # This will cause GnuPG to completely ignore everything after it and
+        # the tag-63-packet itself.
+        # Otherwise GnuPG may prints warnings about unexpected/mangled packets.
         self.body += '\xff\x00'
         messagelength = len(self)
         paddinglength = FIXEDINNERSIZE - messagelength
+        if paddinglength < 0:
+            LOGGER.error("Payload is too large for a single part message. " +
+                         "Multi part messages are not implemented yet.")
+            sys.exit("Payload too large")
         self.body += os.urandom(paddinglength)
 
     def generate_id(self):
