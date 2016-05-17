@@ -553,22 +553,13 @@ def create(message):
     """Create action: reads stdin, parse as a Internet Message and
     creates a nested mix message ready to send."""
 
-    # print "Header:"
-    # print message.header
-    # print "Body:"
-    # print message.body
-
-    # retrieve_mixes()
+    retrieve_mixes()
 
     message = encrypt_to_path(message)
 
     message.armor()
 
     return message
-
-    # messagefile = open('workfile_mixtasy-message', 'w')
-    # messagefile.write(message.__str__())
-    # messagefile.close()
 
 def unpack(message):
     """Unpack action: Decrypt an intermediate mix message and verify payload"""
