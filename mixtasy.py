@@ -351,8 +351,8 @@ class MixMessage(Message):
             LOGGER.warning("Can't armor an unpacked message")
 
     def create_verification(self):
-        """Generates the verification hash (sha"""
-        verificationhash = hashlib.sha256(self.__str__()[:FIXEDINNERSIZE]).hexdigest()
+        """Generates the verification hash (SHA-1)"""
+        verificationhash = hashlib.sha1(self.__str__()[:FIXEDINNERSIZE]).hexdigest()
         self.header.set_field('Verification', verificationhash)
 
     def set_type(self, mixtasytype):
@@ -385,7 +385,7 @@ class MixMessage(Message):
         """
 
         verificationfieldvalue = self.header.remove_field('Verification')
-        verificationhash = hashlib.sha256(self.__str__()[:FIXEDINNERSIZE]).hexdigest()
+        verificationhash = hashlib.sha1(self.__str__()[:FIXEDINNERSIZE]).hexdigest()
         if verificationhash == verificationfieldvalue:
             LOGGER.info("verification ok")
             return True
