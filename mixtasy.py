@@ -7,6 +7,8 @@ import gnupg
 import hashlib
 import logging
 import os
+import random
+import string
 import sys
 
 KEYSERVER = 'hkp://pgp.mit.edu'
@@ -95,6 +97,10 @@ def get_randomnumber(maxlimit):
         randomnumber = randomnumber << 8
         randomnumber += ord(x)
     return randomnumber % maxlimit
+
+def get_randomstring(length, chars=string.ascii_uppercase + string.digits):
+    """Returns a string of random chars"""
+    return ''.join(random.SystemRandom().choice(chars) for _ in range(length))
 
 def retrieve_mixes():
     """Retrive all 'mixtasy@' keys from keyserver"""
@@ -442,9 +448,11 @@ class FinalMixMessage(MixMessage):
         """Generates a unique Mixtasy message ID and
         set it as the 'Mixtasy-ID' header field
         """
-
-        mixtasyid = 'uniqueid'
+        mixtasyid = get_randomstring(20)
         self.header.set_field('Mixtasy-ID', mixtasyid)
+
+    def get_id(self):
+        return self.header.get_field('Mixtasy-ID')
 
     def unpack(self):
         if self.packed:
@@ -525,6 +533,7 @@ class IntermediateMixMessage(MixMessage):
                 if innermessage.verify():
                     self.body = innermessage
                     if isinstance(self.body, FinalMixMessage):
+                        LOGGER.info("Unpacking final mix message (id: %s)", self.body.get_id())
                         return self.body.unpack()
                     return self.body
                 else:
