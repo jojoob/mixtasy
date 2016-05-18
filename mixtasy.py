@@ -36,17 +36,26 @@ def getkey(name):
         LOGGER.info("multiple matching keys found for '%s'. Choosing first one.", name)
     return keys[0]
 
-def encrypt_to_path(originalmessage):
+def encrypt_to_path(originalmessage, firstmix=False):
     """Encrypt a Message to ...
     Factory method for a wrapped message.
     """
 
     i = originalmessage.get_recipient().find('@')
-    rdomain = originalmessage.get_recipient()[i:]
-    rmixaddr = 'mixtasy' + rdomain
-    key = getkey(rmixaddr)
+    rdomain = originalmessage.get_recipient()[i+1:]
+    rmixaddr = 'mixtasy@' + rdomain
+    rmixkey = getkey(rmixaddr)
+    if rmixkey == False:
+        LOGGER.warning("No mix key found for the recipient FQDN: %s", rdomain)
 
-    path = get_path(key)
+    smixkey = False
+    if firstmix != False:
+        smixaddr = 'mixtasy@' + firstmix
+        smixkey = getkey(smixaddr)
+        if smixkey == False:
+            LOGGER.warning("No mix key found for given first mix FQDN: %s", firstmix)
+
+    path = get_path(rmixkey, smixkey)
 
     LOGGER.debug("Encrypt the message to the following mixes...")
     message = originalmessage
@@ -64,18 +73,21 @@ def encrypt_to_path(originalmessage):
 
     return message
 
-def get_path(key=False):
+def get_path(rmixkey=False, smixkey=False):
     """Generates a random path"""
 
     path = []
-    if key != False:
-        path.append(key)
+    if rmixkey != False:
+        path.append(rmixkey)
     mixes = GPG.list_keys(keys='mixtasy@')
     while len(path) < PATHLENGTH:
-        randomkey = random.SystemRandom().choice(mixes)
-
-        if len(path) == 0 or path[len(path)-1] != randomkey:
-            path.append(randomkey)
+        if smixkey != False and len(path) == PATHLENGTH - 1:
+            path.append(smixkey)
+        else:
+            randomkey = random.SystemRandom().choice(mixes)
+            if len(path) == 0 or randomkey != path[-1]:
+                if smixkey == False or randomkey != smixkey:
+                    path.append(randomkey)
     return path
 
 def get_randomstring(length, chars=string.ascii_uppercase + string.digits):
@@ -561,7 +573,7 @@ Finish input with Ctrl+D or by enter a line containing only a . character."""
         stdinput = stdinput + line
     return stdinput
 
-def create(message):
+def create(message, firstmix=None):
     """Create action: reads stdin, parse as a Internet Message and
     creates a nested mix message ready to send."""
 
@@ -569,7 +581,7 @@ def create(message):
 
     retrieve_mixes()
 
-    message = encrypt_to_path(message)
+    message = encrypt_to_path(message, firstmix)
 
     message.armor()
 
@@ -602,8 +614,12 @@ def main():
     """Main function if executed directly, not loaded as a module"""
 
     parser = argparse.ArgumentParser(description='Mixtasy - an openPGP based remailer')
+    parser.add_argument('-m', '--first-mix', dest='firstmix', action='store',
+                        nargs=1, default=None, metavar='FQDN',
+                        help="""FQDN of a mix used as the first one in the generated path
+                                (if your provider operates a mix, use that one)""")
     parser.add_argument('-u', '--unpack', dest='action', action='store_const',
-                        const=unpack, default=create,
+                        const='unpack', default='create',
                         help='Decrypt a mix message and verify payload')
     parser.add_argument('-f', '--input-file', dest='input', action='store',
                         nargs=1, default=None, metavar='file',
@@ -622,7 +638,10 @@ def main():
         userinput = get_userinput()
     message = Message.parse(userinput)
 
-    message = args.action(message)
+    if args.action == 'create':
+        message = create(message, firstmix=args.firstmix[0])
+    elif args.action == 'unpack':
+        message = unpack(message)
 
     output = message.__str__()
     if args.output != None:
