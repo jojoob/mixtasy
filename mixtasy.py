@@ -36,7 +36,7 @@ def getkey(name):
         LOGGER.info("multiple matching keys found for '%s'. Choosing first one.", name)
     return keys[0]
 
-def encrypt_to_path(originalmessage, firstmix=False):
+def encrypt_to_path(originalmessage, firstmix=None):
     """Encrypt a Message to ...
     Factory method for a wrapped message.
     """
@@ -49,7 +49,7 @@ def encrypt_to_path(originalmessage, firstmix=False):
         LOGGER.warning("No mix key found for the recipient FQDN: %s", rdomain)
 
     smixkey = False
-    if firstmix != False:
+    if firstmix != None:
         smixaddr = 'mixtasy@' + firstmix
         smixkey = getkey(smixaddr)
         if smixkey == False:
@@ -639,7 +639,10 @@ def main():
     message = Message.parse(userinput)
 
     if args.action == 'create':
-        message = create(message, firstmix=args.firstmix[0])
+        firstmix = None
+        if args.firstmix != None:
+            firstmix = args.firstmix[0]
+        message = create(message, firstmix)
     elif args.action == 'unpack':
         message = unpack(message)
 
