@@ -13,6 +13,7 @@ PYTHON="/usr/bin/python2.7"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MIXTASY="$PYTHON $DIR/mixtasy.py -u -o"
 MIXADDRESS="mixtasy@testserver.vm"
+LOGFILE="/var/log/mixtasy.log"
 
 # Exit codes from <sysexits.h>
 EX_TEMPFAIL=75
@@ -31,7 +32,7 @@ cat >in.$$ || {
 # Only process as a mixtasy message if addressed to MIXADDRESS
 if [[ $4 == $MIXADDRESS ]]; then	
 	# Specify your content filter here.
-	$MIXTASY in.$$ <in.$$ || {
+	$MIXTASY in.$$ <in.$$ 2>> $LOGFILE || {
 	  echo Message content rejected; exit $EX_UNAVAILABLE; }
 
 	# Re-inject the inner mixtasy message...

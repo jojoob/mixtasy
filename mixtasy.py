@@ -18,7 +18,7 @@ PATHLENGTH = 4
 FIXEDINNERSIZE = 20 * 1024
 FIXEDOUTERSIZE = 30 * 1024
 
-FORMAT = '%(levelname)s %(message)s'
+FORMAT = '%(asctime)s %(levelname)s %(message)s'
 logging.basicConfig(format=FORMAT)
 LOGGER = logging.getLogger(__name__)
 # LOGGER.setLevel(5)
@@ -48,6 +48,7 @@ def encrypt_to_path(originalmessage):
 
     path = get_path(key)
 
+    LOGGER.debug("Encrypt the message to the following mixes...")
     message = originalmessage
     for index, key in enumerate(path):
         i = key['uids'][0].find('<')
@@ -431,6 +432,7 @@ class FinalMixMessage(MixMessage):
                          "Multi part messages are not implemented yet.")
             sys.exit("Payload too large")
         self.body += os.urandom(paddinglength)
+        LOGGER.debug("Random padding of %i bytes added to final mix message", paddinglength)
 
     def generate_id(self):
         """Generates a unique Mixtasy message ID and
@@ -510,6 +512,8 @@ class IntermediateMixMessage(MixMessage):
             messagelength = len(self.body)
             paddinglength = FIXEDOUTERSIZE - messagelength
             self.body += os.urandom(paddinglength)
+            LOGGER.debug("Random padding of %i bytes added to intermediate mix message",
+                         paddinglength)
         else:
             LOGGER.warning("Can't pad an unpacked message")
 
@@ -539,6 +543,9 @@ def get_userinput():
     until SIGKILL (Ctrl+D) or a line with a single dot (.)
     """
 
+    print """Type in a message.
+Finish input with Ctrl+D or by enter a line containing only a . character."""
+
     stdinput = ''
     while 1:
         line = sys.stdin.readline()
@@ -552,6 +559,8 @@ def create(message):
     """Create action: reads stdin, parse as a Internet Message and
     creates a nested mix message ready to send."""
 
+    LOGGER.info("create a message...")
+
     retrieve_mixes()
 
     message = encrypt_to_path(message)
@@ -563,17 +572,20 @@ def create(message):
 def unpack(message):
     """Unpack action: Decrypt an intermediate mix message and verify payload"""
 
+    LOGGER.info("unpack message...")
     mixmessage = IntermediateMixMessage(message.body)
     mixmessage.header = message.header
     innermessage = mixmessage.unpack()
 
     if innermessage != None:
         if isinstance(innermessage, MixMessage):
-            LOGGER.info("Payload was another mix message")
+            LOGGER.info("Payload is another mix message, addressed to: %s",
+                        innermessage.get_recipient())
             innermessage.pad()
             innermessage.armor()
         else:
-            LOGGER.info("Payload was a final mix message: original message revealed")
+            LOGGER.info("Payload was a final mix message: original message addressed to: %s",
+                        innermessage.get_recipient())
         return innermessage
     else:
         LOGGER.error("Failed to unpack message")
