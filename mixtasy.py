@@ -293,16 +293,22 @@ class Message(object):
 
         message = cls('')
         headerready = False
-        for line in messagestring.split('\n'):
-            if headerready:
-                message.body += line + '\n'
-            else:
-                arr = Header.parse_header_line(line)
-                if arr != False:
-                    message.header.set_field(arr[0], arr[1])
-                else:
-                    headerready = True
-                    message.body += line + '\n'
+        lastheaderfield = None
+        header = ''
+        bodyindex = messagestring.find('\r\n\r\n')
+        if bodyindex == -1:
+            bodyindex = messagestring.find('\n\n')
+            message.body = messagestring[bodyindex+2:]
+        else:
+            header = messagestring[:bodyindex]
+            message.body = messagestring[bodyindex+4:]
+        header = messagestring[:bodyindex]
+
+        header = header.replace('\n ', ' ').replace('\n\t', ' ')
+        for line in header.split('\n'):
+            arr = Header.parse_header_line(line)
+            if arr != False:
+                message.header.set_field(arr[0], arr[1])
         message.body = message.body.strip()
         if isinstance(message, MixMessage):
             if 'Mixtasy-ID' in message.header.fields:
@@ -573,6 +579,7 @@ def unpack(message):
     """Unpack action: Decrypt an intermediate mix message and verify payload"""
 
     LOGGER.info("unpack message...")
+    LOGGER.info("Message is addressed to: %s", message.get_recipient())
     mixmessage = IntermediateMixMessage(message.body)
     mixmessage.header = message.header
     innermessage = mixmessage.unpack()
