@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: sendsmtp.sh <recipient> <mail>
+# Usage: sendsmtp.sh <recipient> <mailfile>
 
 TO=$1
 MAIL=`cat $2`
@@ -11,6 +11,7 @@ RCPT TO: $TO
 DATA
 $MAIL
 .
+QUIT
 "
 
 echo "$SMTPCOMMANDS" | telnet localhost 25
