@@ -40,7 +40,6 @@ def encrypt_to_path(originalmessage, firstmix=None):
     """Encrypt a Message to ...
     Factory method for a wrapped message.
     """
-
     i = originalmessage.get_recipient().find('@')
     rdomain = originalmessage.get_recipient()[i+1:]
     rmixaddr = 'mixtasy@' + rdomain
@@ -75,7 +74,6 @@ def encrypt_to_path(originalmessage, firstmix=None):
 
 def get_path(rmixkey=False, smixkey=False):
     """Generates a random path"""
-
     path = []
     if rmixkey != False:
         path.append(rmixkey)
@@ -96,7 +94,6 @@ def get_randomstring(length, chars=string.ascii_uppercase + string.digits):
 
 def retrieve_mixes():
     """Retrive all 'mixtasy@' keys from keyserver"""
-
     LOGGER.info("search key for mixtasy nodes on keyserver '%s' ...", KEYSERVER)
     keys = GPG.search_keys('mixtasy@', keyserver=KEYSERVER)
     keyids = []
@@ -108,8 +105,8 @@ def retrieve_mixes():
 
 def change_openPGP_packet_lengths(data):
     """Change length of openPGP packets with tag 9 or 11
-    contained in data to interdemediate length (eof)"""
-
+    contained in data to interdemediate length (eof)
+    """
     LOGGER.log(5, "################# change_openPGP_packet_header_length")
     offset = 0
     result = str()
@@ -302,7 +299,6 @@ class Message(object):
     @classmethod
     def parse(cls, messagestring):
         """Parse a string as a message with header and body."""
-
         message = cls('')
         headerready = False
         lastheaderfield = None
@@ -385,8 +381,8 @@ class MixMessage(Message):
     @staticmethod
     def factory(recipient, body, outmost_mixmessage=False):
         """Factory method to create a intermediate or final mix message
-        based on type of body"""
-
+        based on type of body
+        """
         if isinstance(body, MixMessage):
             interdemediatemixmessage = IntermediateMixMessage(body, outmost_mixmessage)
             interdemediatemixmessage.set_recipient(recipient)
@@ -402,7 +398,6 @@ class MixMessage(Message):
         """Verifies the first 20 kbyte of the message ageinst the
         value of the verification header field
         """
-
         verificationfieldvalue = self.header.remove_field('Verification')
         verificationhash = hashlib.sha1(self.__str__()[:FIXEDINNERSIZE]).hexdigest()
         if verificationhash == verificationfieldvalue:
@@ -421,7 +416,6 @@ class FinalMixMessage(MixMessage):
 
     def pack(self):
         """Prepares the mix message for sending"""
-
         if not self.packed:
             result = GPG.store(
                 self.body.__str__(),
@@ -435,9 +429,7 @@ class FinalMixMessage(MixMessage):
             logging.info("Message was packed already")
 
     def pad(self):
-        """Add the inner padding to the message
-        """
-
+        """Add the inner padding to the message"""
         # Use an openPGP packet (type: new) with tag 63 and length 0 to separate the random padding.
         # This will cause GnuPG to completely ignore everything after it and
         # the tag-63-packet itself.
@@ -488,7 +480,6 @@ class IntermediateMixMessage(MixMessage):
 
     def pack(self):
         """Prepares the mix message for sending"""
-
         if not self.packed:
             self.body.pack()
             self.encrypt()
@@ -502,6 +493,7 @@ class IntermediateMixMessage(MixMessage):
             logging.info("Message was packed already")
 
     def encrypt(self):
+        """Encrypt the body and changes the openPGP packet lengths."""
         result = GPG.store(
             self.body.__str__(),
             armor=False,
@@ -537,7 +529,6 @@ class IntermediateMixMessage(MixMessage):
 
     def unpack(self):
         """Unpacks the message body and return the contained MixMessage"""
-
         if self.packed:
             result = GPG.decrypt(self.body)
             if result.ok:
@@ -574,8 +565,7 @@ Finish input with Ctrl+D or by enter a line containing only a . character."""
     return stdinput
 
 def create(message, firstmix=None):
-    """Create action: reads stdin, parse as a Internet Message and
-    creates a nested mix message ready to send."""
+    """Create action: creates a nested mix message ready to send."""
 
     LOGGER.info("create a message...")
 
@@ -588,7 +578,7 @@ def create(message, firstmix=None):
     return message
 
 def unpack(message):
-    """Unpack action: Decrypt an intermediate mix message and verify payload"""
+    """Unpack action: Decrypt an intermediate mix message and verify the payload."""
 
     LOGGER.info("unpack message...")
     LOGGER.info("Message is addressed to: %s", message.get_recipient())
@@ -611,9 +601,12 @@ def unpack(message):
         sys.exit("exit due to an error")
 
 def main():
-    """Main function if executed directly, not loaded as a module"""
+    """Main function if executed directly (not loaded as a module)."""
 
     parser = argparse.ArgumentParser(description='Mixtasy - an openPGP based remailer')
+    parser.add_argument('-c', '--create', dest='action', action='store_const',
+                        const='create', default='create',
+                        help='Create a mix message from a supplied email. (default)')
     parser.add_argument('-m', '--first-mix', dest='firstmix', action='store',
                         nargs=1, default=None, metavar='FQDN',
                         help="""FQDN of a mix used as the first one in the generated path

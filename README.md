@@ -31,8 +31,9 @@ Like for the message creation command the `-f`/`-o` options can be used to speci
 4. Copy the `mixtasy.py` and `mixtasy-filter.sh` to a location the 'mixtasy' user has permissions to execute them.
 
     Note: Permissions granted via groups seems not to be considered.
-5. Change the value of the `MIXADDRESS` variable in the `mixtasy-filter.sh` script to the address of your Mixtasy mix (e.g. `mixtasy@mydomain.com`)
-5. To define the Postfix Mixtasy filter service
+5. Adjust the mix address in `mixtasy-filter.sh`
+6. Change the value of the `MIXADDRESS` variable in the `mixtasy-filter.sh` script to the address of your Mixtasy mix (e.g. `mixtasy@mydomain.com`)
+7. To define the Postfix Mixtasy filter service
     add the following block to your Postfix's `master.cf`
 
     /etc/postfix/master.cf:
@@ -42,7 +43,7 @@ Like for the message creation command the `-f`/`-o` options can be used to speci
       argv=/path/to/mixtasy-filter.sh -f ${sender} -- ${recipient}
     ```
 
-6. To enable the Mixtasy filter
+8. To enable the Mixtasy filter
     add the `-o content_filter=mixtasy:dummy` option to the Postfix SMTP service.
 
     /etc/postfix/master.cf:
