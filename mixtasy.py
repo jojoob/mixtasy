@@ -596,20 +596,45 @@ def unpack(message):
         LOGGER.error("Failed to unpack message")
         sys.exit("exit due to an error")
 
+def parse_smtp_connect_string(smtp):
+    username = ''
+    host = 'localhost'
+    port = 587
+    if '@' in smtp:
+        offset = smtp.find('@')
+        username = smtp[:offset]
+        smtp = smtp[offset + 1:]
+    if ':' in smtp:
+        offset = smtp.find(':')
+        host = smtp[:offset]
+        port = smtp[offset + 1:]
+    else:
+        host = smtp
+    return (username, host, port)
+
 def main():
     """Main function if executed directly (not loaded as a module)."""
 
     parser = argparse.ArgumentParser(description='Mixtasy - an openPGP based remailer')
-    parser.add_argument('-c', '--create', dest='action', action='store_const',
-                        const='create', default='create',
-                        help='Create a mix message from a supplied email. (default)')
-    parser.add_argument('-m', '--first-mix', dest='firstmix', action='store',
-                        nargs=1, default=None, metavar='FQDN',
-                        help="""FQDN of a mix used as the first one in the generated path
-                                (if your provider operates a mix, use that one)""")
-    parser.add_argument('-u', '--unpack', dest='action', action='store_const',
-                        const='unpack', default='create',
-                        help='Decrypt a mix message and verify payload')
+
+    subparsers = parser.add_subparsers(
+        title='Action',
+        dest="action")
+    # create the parser for the "create" command
+    parser_create = subparsers.add_parser(
+        'create',
+        description='Create a mix message from a supplied email.',
+        help='Create a mix message from a supplied email.')
+    parser_create.add_argument(
+        '-m', '--first-mix', dest='firstmix', action='store',
+        nargs=1, default=None, metavar='FQDN',
+        help="""FQDN of a mix used as the first one in the generated path
+                (if your provider operates a mix, use that one)""")
+    # create the parser for the "unpack" command
+    parser_unpack = subparsers.add_parser(
+        'unpack',
+        help='Decrypt a mix message and verify the payload.')
+    # Add general arguments
     parser.add_argument('-f', '--input-file', dest='input', action='store',
                         nargs=1, default=None, metavar='file',
                         help='Read input from file instead of stdin')
