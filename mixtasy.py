@@ -21,10 +21,6 @@ FIXEDOUTERSIZE = 30 * 1024
 FORMAT = '%(asctime)s %(levelname)s %(message)s'
 logging.basicConfig(format=FORMAT)
 LOGGER = logging.getLogger(__name__)
-# LOGGER.setLevel(5)
-LOGGER.setLevel(logging.DEBUG) # 10
-# LOGGER.setLevel(logging.INFO) # 20
-# LOGGER.setLevel(logging.WARNING) # 30
 
 def getkey(name):
     """Get a key from local keyring."""
@@ -620,7 +616,29 @@ def main():
     parser.add_argument('-o', '--output-file', dest='output', action='store',
                         nargs=1, default=None, metavar='file',
                         help='Write output to file instead of stdout')
+    parser.add_argument(
+        '-v', '--verbosity', dest='logging_verbosity', action='store',
+        nargs='?', default=1, const=2, metavar='level',
+        help="""Set the verbosity for logging.
+        It must be between 0 and 4. Default is 1.
+        0: Only critical messages;
+        1: print warnings;
+        2: print info messages;
+        3: print debugging messages;
+        4: print everything""")
     args = parser.parse_args()
+
+    logging_verbosity = int(args.logging_verbosity)
+    if logging_verbosity <= 0:
+        LOGGER.setLevel(logging.CRITICAL) # 50
+    elif logging_verbosity == 1:
+        LOGGER.setLevel(logging.WARNING) # 30
+    elif logging_verbosity == 2:
+        LOGGER.setLevel(logging.INFO) # 20
+    elif logging_verbosity == 3:
+        LOGGER.setLevel(logging.DEBUG) # 10
+    else:
+        LOGGER.setLevel(1)
 
     userinput = None
     if args.input != None:
