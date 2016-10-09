@@ -233,7 +233,10 @@ class Header(object):
 
     def get_field(self, field):
         """Get the field value"""
-        return self.fields[field]
+        if field in self.fields:
+            return self.fields[field]
+        else:
+            return None
 
     def remove_field(self, field):
         """Remove the field from header"""
