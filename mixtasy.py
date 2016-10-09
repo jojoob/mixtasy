@@ -12,6 +12,7 @@ import string
 import sys
 import smtplib
 import getpass
+import subprocess
 
 KEYSERVER = 'hkp://pgp.mit.edu'
 GPG = gnupg.GPG(gpgbinary='gpg2')
@@ -632,6 +633,10 @@ def send_message_smtp(message, smtp, auth, mail_from):
     server.sendmail(mail_from, message.header.get_field('To'), message.__str__())
     server.quit()
 
+def send_message_sendmail(message, sendmail_options):
+    sendmail = subprocess.Popen(["/usr/sbin/sendmail"] + sendmail_options, stdin=subprocess.PIPE)
+    sendmail.communicate(message.__str__())
+
 def main():
     """Main function if executed directly (not loaded as a module)."""
 
@@ -670,6 +675,22 @@ def main():
     parser_unpack = subparsers.add_parser(
         'unpack',
         help='Decrypt a mix message and verify the payload.')
+    parser_unpack.add_argument(
+        '-r', '--recipient', dest='mail_to', action='store',
+        nargs=1, default=None, metavar='recipient_address',
+        help="""""")
+    parser_unpack.add_argument(
+        '-l', '--sendmail', dest='sendmail', action='store_const',
+        const='sendmail',
+        help="""Send the output message directly using sendmail.""")
+    parser_unpack.add_argument(
+        '-b', '--bypass', dest='bypass', action='store',
+        nargs=1, default=None, metavar='sendmail_options',
+        help="""Command line options used with sendmail when bypassing the
+        mixtasy unpacking mechanism (for mails that are no mixtasy messages).
+        This option only takes effect if --sendmail is given.
+        To avoid misinterpretation use with an equal sign between the flag and value:\n
+        --bypass='-G -i -f ${sender} -- ${recipient}'""")
     # Add general arguments
     parser.add_argument('-i', '--input-file', dest='input', action='store',
                         nargs=1, default=None, metavar='file',
@@ -731,7 +752,16 @@ def main():
                 password = getpass.getpass("%s's password: " % username)
             send_message_smtp(message, (host, port), (username, password), mail_from)
     elif args.action == 'unpack':
-        message = unpack(message)
+        if message.header.get_field('Remailer-Type') == 'Mixtasy 1':
+            message = unpack(message)
+            if args.sendmail != None:
+                send_message_sendmail(message, ['-G', '-i', '-t'])
+        else:
+            LOGGER.info("""Message is not a 'Mixtasy 1' message, bypass unpacking.""")
+            if args.sendmail != None:
+                if args.bypass != None:
+                    sendmail_options = args.bypass[0].split(' ')
+                    send_message_sendmail(userinput, sendmail_options)
 
     output = message.__str__()
     if args.output != None:
