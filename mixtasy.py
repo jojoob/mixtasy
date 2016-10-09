@@ -10,6 +10,8 @@ import os
 import random
 import string
 import sys
+import smtplib
+import getpass
 
 KEYSERVER = 'hkp://pgp.mit.edu'
 GPG = gnupg.GPG(gpgbinary='gpg2')
@@ -615,6 +617,21 @@ def parse_smtp_connect_string(smtp):
         host = smtp
     return (username, host, port)
 
+def send_message_smtp(message, smtp, auth, mail_from):
+    LOGGER.info('Send message using SMTP')
+    (host, port) = smtp
+    (username, password) = auth
+    server = smtplib.SMTP(host, port)
+    server.ehlo_or_helo_if_needed()
+    if server.has_extn('STARTTLS'):
+        LOGGER.debug('Using STARTTLS')
+        server.starttls()
+    if username != '':
+        LOGGER.debug('Authenticating')
+        server.login(username, password)
+    server.sendmail(mail_from, message.header.get_field('To'), message.__str__())
+    server.quit()
+
 def main():
     """Main function if executed directly (not loaded as a module)."""
 
@@ -633,12 +650,28 @@ def main():
         nargs=1, default=None, metavar='FQDN',
         help="""FQDN of a mix used as the first one in the generated path
                 (if your provider operates a mix, use that one)""")
+    parser_create.add_argument(
+        '-s', '--smtp', dest='smtp', action='store',
+        nargs='?', const='localhost:587', default=None, metavar='username@server:port',
+        help="""Send the message directly using the SMTP data provided
+        with the argument value. A string in the form of [[username@]server[:port]]
+        If the argument value is omitted localhost is used as the SMPT server
+        with no authentication. If the SMTP server requires authentication a username
+        must be given. If the port is omitted 587 will be used as default.
+        If username is given it will also be used for the SMTP FROM command unless it is
+        specified otherwise with -f. If neither, username or sender address is given
+        LOGNAME, USER, LNAME or USERNAME will be used for the SMTP FROM command.
+        Examples: alice@emailprovider.net or openrelay.net:25486""")
+    parser_create.add_argument(
+        '-f', '--from', dest='mail_from', action='store',
+        nargs=1, default=None, metavar='sender_address',
+        help="""Use the given address in the SMTP FROM command.""")
     # create the parser for the "unpack" command
     parser_unpack = subparsers.add_parser(
         'unpack',
         help='Decrypt a mix message and verify the payload.')
     # Add general arguments
-    parser.add_argument('-f', '--input-file', dest='input', action='store',
+    parser.add_argument('-i', '--input-file', dest='input', action='store',
                         nargs=1, default=None, metavar='file',
                         help='Read input from file instead of stdin')
     parser.add_argument('-o', '--output-file', dest='output', action='store',
@@ -682,6 +715,21 @@ def main():
         if args.firstmix != None:
             firstmix = args.firstmix[0]
         message = create(message, firstmix)
+
+        if args.smtp != None:
+            (username, host, port) = parse_smtp_connect_string(args.smtp)
+            mail_from = ''
+            if args.mail_from is None:
+                if username != '':
+                    mail_from = username
+                else:
+                    mail_from = getpass.getuser()
+            else:
+                mail_from = args.mail_from[0]
+            password = ''
+            if username != '':
+                password = getpass.getpass("%s's password: " % username)
+            send_message_smtp(message, (host, port), (username, password), mail_from)
     elif args.action == 'unpack':
         message = unpack(message)
 
