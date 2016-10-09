@@ -21,8 +21,7 @@ PATHLENGTH = 4
 FIXEDINNERSIZE = 20 * 1024
 FIXEDOUTERSIZE = 30 * 1024
 
-FORMAT = '%(asctime)s %(levelname)s %(message)s'
-logging.basicConfig(format=FORMAT)
+FORMAT = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 LOGGER = logging.getLogger(__name__)
 
 def getkey(name):
@@ -676,7 +675,7 @@ def main():
         'unpack',
         help='Decrypt a mix message and verify the payload.')
     parser_unpack.add_argument(
-        '-l', '--sendmail', dest='sendmail', action='store',
+        '-s', '--sendmail', dest='sendmail', action='store',
         nargs=2, default=None, metavar=('sender', 'recipient'),
         help="""Send the output message directly using sendmail.
         The original sender and receiver passed as argument values
@@ -689,6 +688,9 @@ def main():
     parser.add_argument('-o', '--output-file', dest='output', action='store',
                         nargs=1, default=None, metavar='file',
                         help='Write output to file instead of stdout')
+    parser.add_argument('-l', '--logfile', dest='logfile', action='store',
+                        nargs=1, default=None, metavar='file',
+                        help='Write logging output to file instead of stderr')
     parser.add_argument(
         '-v', '--verbosity', dest='logging_verbosity', action='store',
         nargs='?', default=1, const=2, metavar='level',
@@ -712,6 +714,15 @@ def main():
         LOGGER.setLevel(logging.DEBUG) # 10
     else:
         LOGGER.setLevel(1)
+
+    if args.logfile != None:
+        fh = logging.FileHandler(args.logfile[0])
+        fh.setFormatter(FORMAT)
+        LOGGER.addHandler(fh)
+    else:
+        ch = logging.StreamHandler()
+        ch.setFormatter(FORMAT)
+        LOGGER.addHandler(ch)
 
     userinput = None
     if args.input != None:
