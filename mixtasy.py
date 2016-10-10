@@ -665,6 +665,8 @@ def main():
         If username is given it will also be used for the SMTP FROM command unless it is
         specified otherwise with -f. If neither, username or sender address is given
         LOGNAME, USER, LNAME or USERNAME will be used for the SMTP FROM command.
+        If the server is not localhost it will be tried to use this as the first mix
+        until set otherwise with the --first-mix option.
         Examples: alice@emailprovider.net or openrelay.net:25486""")
     parser_create.add_argument(
         '-f', '--from', dest='mail_from', action='store',
@@ -734,13 +736,18 @@ def main():
     message = Message.parse(userinput)
 
     if args.action == 'create':
+        if args.smtp != None:
+            (username, host, port) = parse_smtp_connect_string(args.smtp)
         firstmix = None
         if args.firstmix != None:
             firstmix = args.firstmix[0]
+        elif args.smtp != None and host != 'localhost':
+            LOGGER.info('Try to use SMTP host as first mix.')
+            firstmix = host
+
         message = create(message, firstmix)
 
         if args.smtp != None:
-            (username, host, port) = parse_smtp_connect_string(args.smtp)
             mail_from = ''
             if args.mail_from is None:
                 if username != '':
