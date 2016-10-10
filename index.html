@@ -70,11 +70,12 @@ They are explicit not for production use and their continuous availability is no
 
 <div class="highlight highlight-source-shell"><pre>./mixtasy.py create -m 1.alphatest.mixtasy.net -s username@your-mail-provider.com</pre></div>
 
-<p>You have to enter a mail including at least a "To:" mail header line to indicate the receiver of the message.
+<p>You have to enter a mail including at least a "To:" mail header line to indicate the receiver of the message. The message body must be separated from the header with a blank line.
 For example:</p>
 
 <pre><code>To: bob@example.com
 Subject: Just a Mixtasy test message
+
 Hi Bob, it's me.
 </code></pre>
 
