@@ -1,6 +1,6 @@
 {
   "name": "Mixtasy",
   "tagline": "Mixtasy - an openPGP based remailer",
-  "body": "# Mixtasy\r\nMixtasy - an openPGP based remailer\r\n\r\n## What is Mixtasy?\r\n...\r\n\r\n## Mixtasy Prototype\r\nThis is a prototype which implements a subset of the Mixtasy remailer specification written in python.\r\nTo setup a Mixtasy mix this repository contains a bash script which is meant to be used as a simple Postfix content filter (see http://www.postfix.org/FILTER_README.html).\r\n\r\n",
+  "body": "# What is Mixtasy?\r\n...\r\n\r\n# Mixtasy Prototype\r\nThis is a prototype which implements a subset of the Mixtasy remailer specification written in python.\r\nTo setup a Mixtasy mix this repository contains a bash script which is meant to be used as a simple Postfix content filter (see http://www.postfix.org/FILTER_README.html).\r\n\r\n",
   "note": "Don't delete this file! It's used internally to help with page regeneration."
 }
