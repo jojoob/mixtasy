@@ -28,16 +28,82 @@
         </ul>
       </header>
       <section>
-        <h1>
-<a id="what-is-mixtasy" class="anchor" href="#what-is-mixtasy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is Mixtasy?</h1>
+        <h2>
+<a id="what-is-mixtasy" class="anchor" href="#what-is-mixtasy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is Mixtasy?</h2>
 
-<p>...</p>
+<p>Mixtasy is a remailer protocol that aims to provide good security and anonymity for emailing on top of existing infrastructure.
+The protocol is described in the Master's Thesis "Mixtasy: Remailing on Existing Infrastructure - Anonymized Email Communication Easily Deployable Using SMTP &amp; OpenPGP" by Johannes Burk.
+There is also a prototypical implementation (<a href="https://github.com/jojoob/mixtasy/">available on GitHub</a>) of a feature subset of the protocol to demonstrate the feasibility.</p>
 
-<h1>
-<a id="mixtasy-prototype" class="anchor" href="#mixtasy-prototype" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mixtasy Prototype</h1>
+<p>More information about remailers in general and existing remailer protocols and software can be found here:</p>
 
-<p>This is a prototype which implements a subset of the Mixtasy remailer specification written in python.
-To setup a Mixtasy mix this repository contains a bash script which is meant to be used as a simple Postfix content filter (see <a href="http://www.postfix.org/FILTER_README.html">http://www.postfix.org/FILTER_README.html</a>).</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Anonymous_remailer">Wikipedia: Anonymous remailer</a></li>
+<li><a href="https://crypto.is/blog/what_is_a_remailer">crypto.is blog: What is a Remailer?</a></li>
+<li><a href="https://crypto.is/blog/remailers_weve_got">crypto.is blog: Remailers We've Got</a></li>
+<li><a href="http://mixmaster.sourceforge.net/">Mixmaster Remailer Website</a></li>
+<li><a href="http://mixminion.net/">Mixminion Remailer Website</a></li>
+</ul>
+
+<h2>
+<a id="mixtasy-prototype" class="anchor" href="#mixtasy-prototype" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mixtasy Prototype</h2>
+
+<p>A prototype which implements a subset of the Mixtasy remailer specification written in python can be found on <a href="https://github.com/jojoob/mixtasy/">GitHub</a>.
+This implementation can be used for the creation and sending of Mixtasy messages and to setup an Mixtasy mix node.
+Details are explained in the <a href="https://github.com/jojoob/mixtasy/blob/master/README.md">README.md</a> file within the repository.</p>
+
+<h2>
+<a id="test-network" class="anchor" href="#test-network" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Test Network</h2>
+
+<p>There are currently three Mixtasy Mixes available for testing purposes:
+They are explicit not for production use and their continuous availability is not guaranteed.</p>
+
+<ul>
+<li>[Online] 1.alphatest.mixtasy.net</li>
+<li>[Online] 2.alphatest.mixtasy.net</li>
+<li>[Online] 3.alphatest.mixtasy.net</li>
+</ul>
+
+<p>The PGP Keys for the test servers can be found here: <a href="http://pgp.mit.edu/pks/lookup?search=alphatest.mixtasy.net">pgp.mit.edu key search</a></p>
+
+<p>To send a Mixtasy test message download or clone the prototype from GitHub and invoke the Mixtasy python script as follows:</p>
+
+<div class="highlight highlight-source-shell"><pre>./mixtasy.py create -m 1.alphatest.mixtasy.net -s username@your-mail-provider.com</pre></div>
+
+<p>You have to enter a mail including at least a "To:" mail header line to indicate the receiver of the message.
+For example:</p>
+
+<pre><code>To: bob@example.com
+Subject: Just a Mixtasy test message
+Hi Bob, it's me.
+</code></pre>
+
+<p><strong>Please,</strong> only use the listed mix nodes for testing purposes. Try to not cause high load.</p>
+
+<h2>
+<a id="theory" class="anchor" href="#theory" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Theory</h2>
+
+<p>Mixtasy: Remailing on Existing Infrastructure<br>
+Anonymized Email Communication Easily Deployable Using SMTP &amp; OpenPGP</p>
+
+<p><a href="res/Mixtasy-Masters_Thesis-Johannes_Burk.pdf">Complete master's thesis</a><br>
+<a href="res/Mixtasy-YRD_2016-Presentation.pdf">Slides from the Presentation at the Austrian Young Researchers' Day</a></p>
+
+<h3>
+<a id="abstract" class="anchor" href="#abstract" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Abstract</h3>
+
+<p>Email is one of the oldest electronic communication tools.
+While it provides excellent service in terms of simplicity and reliability, it suffers from high insecurities and does not provide any anonymity or privacy.
+Even the increasing use of known transport and end-to-end encryption techniques cannot avoid leaving a trace of metadata.
+Several existing solutions try to tackle these weaknesses, but non of them fit all requirements (including usability and adoption properties) regarding secure and anonymized communication.</p>
+
+<p>Thus, this work develops 'Mixtasy', a new protocol based on a mix network.
+In order to enable rapid deployment, which facilitates better anonymization in this class of protocols, a central design goal was easy adoption.
+This is achieved by reusing existing technologies (OpenPGP, SMTP, Internet Message Format) and infrastructure (PGP key servers, mail transfer infrastructure).
+The practicability of the protocol is proven by a prototypical implementation.
+While excluding mixing algorithms and dummy traffic, the prototype offers basic anonymization of email communication.
+A complete implementation of the specification for protection against global adversaries is outstanding.
+Possible improvements, especially the optimization of the used mixing algorithm and enabling anoynmous replies, are discussed and outlined for future work and research.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/jojoob">jojoob</a></p>
