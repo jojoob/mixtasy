@@ -2,7 +2,8 @@
 Mixtasy - an openPGP based remailer
 
 This is a prototype which implements a subset of the Mixtasy remailer specification written in python.
-To setup a Mixtasy mix this repository contains a bash script which is meant to be used as a simple Postfix content filter (see http://www.postfix.org/FILTER_README.html).
+An existing Postfix SMTP server can easily be turned into a Mixtasy mix.
+The python script can be injected to the Postfix flow as a simple after-queue content filter (see http://www.postfix.org/FILTER_README.html). When setup as explained below the script will process Mixtasy messages and inject the output to Postfix and re-inject all other messages untouched.
 
 ## Requirements
 * python 2.7
