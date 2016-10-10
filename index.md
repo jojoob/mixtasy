@@ -41,6 +41,8 @@ Hi Bob, it's me.
 
 **Please,** only use the listed mix nodes for testing purposes. Try to not cause high load.
 
+**Note:** The test nodes are currently not able to deliver mails to the most big mail providers (including gmail, gmx, etc.). Maybe use your own mail server for testing.
+
 ## Theory
 Mixtasy: Remailing on Existing Infrastructure  
 Anonymized Email Communication Easily Deployable Using SMTP & OpenPGP
