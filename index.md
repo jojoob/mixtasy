@@ -13,18 +13,18 @@ More information about remailers in general and existing remailer protocols and 
 
 ## Mixtasy Prototype
 A prototype which implements a subset of the Mixtasy remailer specification written in python can be found on [GitHub](https://github.com/jojoob/mixtasy/).
-This implementation can be used for the creation and sending of Mixtasy messages and to setup an Mixtasy mix node.
+This implementation can be used for the creation and sending of Mixtasy messages and to setup a Mixtasy mix node.
 Details are explained in the [README.md](https://github.com/jojoob/mixtasy/blob/master/README.md) file within the repository.
 
 ## Test Network
-There are currently three Mixtasy Mixes available for testing purposes:
-They are explicit not for production use and their continuous availability is not guaranteed.
+There are currently three Mixtasy mixes available for testing purposes:
+They are explicitly not for production use and their continuous availability is not guaranteed.
 
 * [Online] 1.alphatest.mixtasy.net
 * [Online] 2.alphatest.mixtasy.net
 * [Online] 3.alphatest.mixtasy.net
 
-The PGP Keys for the test servers can be found here: [pgp.mit.edu key search](http://pgp.mit.edu/pks/lookup?search=alphatest.mixtasy.net)
+The PGP keys for the test servers can be found here: [pgp.mit.edu key search](http://pgp.mit.edu/pks/lookup?search=alphatest.mixtasy.net)
 
 To send a Mixtasy test message download or clone the prototype from GitHub and invoke the Mixtasy python script as follows:
 ```sh
