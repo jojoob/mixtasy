@@ -30,11 +30,12 @@ To send a Mixtasy test message download or clone the prototype from GitHub and i
 ```sh
 ./mixtasy.py create -m 1.alphatest.mixtasy.net -s username@your-mail-provider.com
 ```
-You have to enter a mail including at least a "To:" mail header line to indicate the receiver of the message.
+You have to enter a mail including at least a "To:" mail header line to indicate the receiver of the message. The message body must be separated from the header with a blank line.
 For example:
 ```
 To: bob@example.com
 Subject: Just a Mixtasy test message
+
 Hi Bob, it's me.
 ```
 
