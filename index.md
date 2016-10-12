@@ -20,9 +20,9 @@ Details are explained in the [README.md](https://github.com/jojoob/mixtasy/blob/
 There are currently three Mixtasy mixes available for testing purposes:
 They are explicitly not for production use and their continuous availability is not guaranteed.
 
-* [Online] 1.alphatest.mixtasy.net
-* [Online] 2.alphatest.mixtasy.net
-* [Online] 3.alphatest.mixtasy.net
+* [Offline] 1.alphatest.mixtasy.net
+* [Offline] 2.alphatest.mixtasy.net
+* [Offline] 3.alphatest.mixtasy.net
 
 The PGP keys for the test servers can be found here: [pgp.mit.edu key search](http://pgp.mit.edu/pks/lookup?search=alphatest.mixtasy.net)
 
